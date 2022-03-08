@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration [
+        <!ELEMENT configuration (appender|root)*>
+        <!ELEMENT appender (file|append|immediateFlush|encoder)*>
+        <!ATTLIST appender
+                name CDATA #REQUIRED
+                class CDATA #REQUIRED>
+        <!ELEMENT file (#PCDATA)>
+        <!ELEMENT append (#PCDATA)>
+        <!ELEMENT immediateFlush (#PCDATA)>
+        <!ELEMENT encoder (pattern)*>
+        <!ELEMENT pattern (#PCDATA)>
+        <!ELEMENT root (appender-ref)*>
+        <!ATTLIST root
+                level CDATA #REQUIRED>
+        <!ELEMENT appender-ref (#PCDATA)>
+        <!ATTLIST appender-ref
+                ref CDATA #REQUIRED>
+        ]>
+<configuration>
+<!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>app.log</file>
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+<!--        <appender-ref ref="STDOUT" />-->
+        <appender-ref ref="file" />
+    </root>
+</configuration>

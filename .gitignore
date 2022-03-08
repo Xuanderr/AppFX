@@ -1,0 +1,8 @@
+# Project exclude paths
+/out/
+/target/
+src/main/java/META-INF
+module-info.java
+*.log
+*.iml
+*.png
