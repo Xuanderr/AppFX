@@ -86,6 +86,5 @@
    </AnchorPane>
 
    <TextArea fx:id="fieldAlert" prefHeight="30.0" prefWidth="190.0"
-             text="max &gt;= min: Проверьте правильность ввода. При исследовании одного значения заполните одно из полей"
              visible="false" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0"/>
 </AnchorPane>

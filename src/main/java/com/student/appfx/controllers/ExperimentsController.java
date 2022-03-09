@@ -4,55 +4,48 @@ import com.student.appfx.cache.DataCache;
 import com.student.appfx.entities.Experiment;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
 
 public class ExperimentsController {
 
-    private static VBox paneLog;
-
     private Integer expStart;
     private Integer expEnd;
-    private final int expStep = 1;
 
     private Double acStart;
     private Double acEnd;
     private Double acStep;
 
-    public static void setPaneLog(VBox paneLog) {
-        ExperimentsController.paneLog = paneLog;
-    }
+    private Integer seedStart;
+    private Integer seedEnd;
 
-    private void addRecordToLog(Label label) {
-        VBox.setMargin(label, new Insets(0, 5, 2, 5));
-        paneLog.getChildren().add(label);
-    }
-
-    public void doExperiments() {
-        if (DataCache.experimentType == 0) {
-            Label label = new Label("Отмена эксперимента");
-            addRecordToLog(label);
-            return;
-        }
-        if (!DataCache.dataInput) {
-            Label label = new Label("Данные не введены");
-            addRecordToLog(label);
-            return;
-        }
+    public boolean doExperiment() {
         init();
         DataCache.graphics.clear();
         switch (DataCache.experimentType) {
-            case 1 -> launchTypeOne();
-            case 2 -> launchTypeTwo();
-            default -> def();
+            case 1 -> {
+                launchTypeOne();
+                return true;
+            }
+            case 2 -> {
+                launchTypeTwo();
+                return true;
+            }
+            case 3 -> {
+                launchTypeThree();
+                return true;
+            }
+            case 4 -> {
+                launchTypeFour();
+                return true;
+            }
+            default -> {
+                return false;
+            }
         }
-
     }
 
     private void launchTypeOne() {
@@ -62,11 +55,12 @@ public class ExperimentsController {
         double yTics = 0.1;
         for (int d = 0; d < DataCache.diapasons.size(); d++) {
             for(double a = acStart; a <= acSize; a += acStep) {
-                for (int e = expStart; e <= expSize; e += expStep) {
-                    Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d));
-                    ObservableList<XYChart.Series<Number, Number>> seriesList = experiment.launch();
+                for (int e = expStart; e <= expSize; e += 1) {
+                    Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d), null);
+                    experiment.launch();
+                    ObservableList<XYChart.Series<Number, Number>> seriesList = experiment.getSeriesList();
                     LineChart<Number,Number> lineChart = createChart(seriesList, "iteration", "expert value");
-                    if(d == 3) {
+                    if(DataCache.diapasons.get(d) == 3) {
                         xTics = 50;
                     }
                     setAxisTicsAndLowerUpperBounds(seriesList, lineChart, xTics, yTics);
@@ -76,43 +70,81 @@ public class ExperimentsController {
                 }
             }
         }
-        Label label = new Label("Результаты получены");
-        addRecordToLog(label);
     }
 
     private void launchTypeTwo() {
         double acSize = ((acEnd == 0) ? acStart : acEnd);
         int expSize = ((expEnd == 0) ? expStart : expEnd);
         for(double a = acStart; a <= acSize; a += acStep) {
-            ObservableList<XYChart.Series<Number, Number>> seriesList = FXCollections.observableArrayList();
-            for (int i = 0; i < DataCache.diapasons.size(); i++) {
-                XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                series.setName(genTypeToString(DataCache.diapasons.get(i)));
-                seriesList.add(series);
-            }
-            for (int e = expStart; e <= expSize; e += expStep) {
-                for (int d = 0; d < DataCache.diapasons.size(); d++) {
-                    Experiment experiment = new Experiment(e, a, d+1);
+            for (int d = 0; d < DataCache.diapasons.size(); d++) {
+                XYChart.Series<Number,Number> series = new XYChart.Series<>();
+                series.setName(genTypeToString(DataCache.diapasons.get(d)));
+                for (int e = expStart; e <= expSize; e += 1) {
+                    Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d), null);
                     experiment.launch();
                     XYChart.Data<Number,Number> data = experiment.getData();
-                    seriesList.get(d).getData().add(data);
+                    series.getData().add(data);
+                }
+                LineChart<Number,Number> chart = createAdditionalChart(series, "number of experts", "convergence");
+                chart.setTitle(String.format("accuracy: %f", a));
+                DataCache.graphics.add(chart);
+            }
+        }
+    }
+
+    private void launchTypeThree() {
+        double acSize = ((acEnd == 0) ? acStart : acEnd);
+        int expSize = ((expEnd == 0) ? expStart : expEnd);
+        int seedSize = ((seedEnd == 0) ? seedStart : seedEnd);
+        double xTics = 0.1;
+        double yTics = 0.1;
+        for (int d = 0; d < DataCache.diapasons.size(); d++) {
+            for(double a = acStart; a <= acSize; a += acStep) {
+                for (int e = expStart; e <= expSize; e += 1) {
+                    for (int s = seedStart; s <= seedSize; s += 1) {
+                        Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d), s);
+                        experiment.launch();
+                        ObservableList<XYChart.Series<Number, Number>> seriesList = experiment.getSeriesList();
+                        LineChart<Number,Number> lineChart = createChart(seriesList, "iteration", "expert value");
+                        if(DataCache.diapasons.get(d) == 3) {
+                            xTics = 50;
+                        }
+                        setAxisTicsAndLowerUpperBounds(seriesList, lineChart, xTics, yTics);
+                        lineChart.setTitle(String.format(
+                                "diapason: %s, accuracy: %f, experts: %d, seed: %d",
+                                genTypeToString(DataCache.diapasons.get(d)), a, e, s));
+                        DataCache.graphics.add(lineChart);
+                    }
                 }
             }
-            LineChart<Number,Number> lineChart = createChart(seriesList, "number of experts", "convergence");
-            lineChart.setTitle(String.format("accuracy: %f", a));
-            LineChart<Number,Number> chart1 = createAdditionalChart(seriesList.get(0), "number of experts", "convergence");
-            chart1.setTitle(String.format("accuracy: %f", a));
-            LineChart<Number,Number> chart2 = createAdditionalChart(seriesList.get(1), "number of experts", "convergence");
-            chart2.setTitle(String.format("accuracy: %f", a));
-            LineChart<Number,Number> chart3 = createAdditionalChart(seriesList.get(2), "number of experts", "convergence");
-            chart3.setTitle(String.format("accuracy: %f", a));
-            DataCache.graphics.add(lineChart);
-            DataCache.graphics.add(chart1);
-            DataCache.graphics.add(chart2);
-            DataCache.graphics.add(chart3);
         }
-        Label label = new Label("Результаты получены");
-        addRecordToLog(label);
+    }
+
+    private void launchTypeFour() {
+        double acSize = ((acEnd == 0) ? acStart : acEnd);
+        int expSize = ((expEnd == 0) ? expStart : expEnd);
+        int seedSize = ((seedEnd == 0) ? seedStart : seedEnd);
+        for(double a = acStart; a <= acSize; a += acStep) {
+            for (int e = expStart; e <= expSize; e += 1) {
+                for (int s = seedStart; s <= seedSize; s += 1) {
+                    Experiment experiment = new Experiment(e, a, 3, s);
+                    experiment.launch();
+                    ObservableList<XYChart.Series<Number, Number>> before = experiment.getCorrectionData().getBefore();
+                    ObservableList<XYChart.Series<Number, Number>> after = experiment.getCorrectionData().getAfter();
+                    LineChart<Number,Number> beforeChart = createChart(before, "iteration", "expert value");
+                    LineChart<Number,Number> afterChart = createChart(after, "iteration", "expert value");
+                    setAxisTicsAndLowerUpperBounds(before, beforeChart, 50, 0.1);
+                    setAxisTicsAndLowerUpperBounds(after, afterChart, 50, 0.1);
+                    beforeChart.setTitle(String.format(
+                            "diapason: [-10, 10], accuracy: %f, experts: %d, seed: %d, correction: false", a, e, s));
+                    afterChart.setTitle(String.format(
+                            "diapason: [-10, 10], accuracy: %f, experts: %d, seed: %d, correction: multiplier = %f",
+                            a, e, s, DataCache.correctionMultiplier));
+                    DataCache.graphics.add(beforeChart);
+                    DataCache.graphics.add(afterChart);
+                }
+            }
+        }
     }
 
     private String genTypeToString(int genType) {
@@ -145,6 +177,12 @@ public class ExperimentsController {
         }
         int scale = BigDecimal.valueOf(acStart).scale();
         acStep = 1.0 / Math.pow(10, scale);
+        seedStart = DataCache.seeds.get(0);
+        if (DataCache.seeds.size() != 1) {
+            seedEnd = DataCache.seeds.get(1);
+        } else {
+            seedEnd = 0;
+        }
     }
 
     private LineChart<Number, Number> createChart(ObservableList<XYChart.Series<Number, Number>> seriesList,
@@ -153,7 +191,6 @@ public class ExperimentsController {
         final NumberAxis yAxis = createAxis(yLabel);
         final LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
         chart.setAnimated(false);
-        //chart.setCreateSymbols(false);
         chart.setData(seriesList);
         return chart ;
     }
@@ -200,9 +237,4 @@ public class ExperimentsController {
         yAxis.setTickUnit(yTics);
     }
 
-
-    private void def() {
-        Label label = new Label("Тип не распознан");
-        addRecordToLog(label);
-    }
 }

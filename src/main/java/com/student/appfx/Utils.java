@@ -48,7 +48,7 @@ public class Utils {
             throw new MismatchColumnsStringsException("Columns or strings of comparing objects is mismatch");
         }
         double result = 0;
-        double tmp = 0;
+        double tmp;
         for (int i = 0; i < one.length; i++) {
             for (int j = 0; j < one[0].length; j++) {
                 tmp = one[i][j] - two[i][j];
@@ -57,6 +57,16 @@ public class Utils {
             }
         }
         return result;
+    }
+
+    public static void correction(MatrixOrVector item, double multiplier) {
+        for (double[] doubles: item.get()) {
+            for(int i = 0; i < doubles.length; i++) {
+                if(doubles[i] < 0) {
+                    doubles[i] *= multiplier;
+                }
+            }
+        }
     }
 
     //only for inner using
@@ -74,8 +84,8 @@ public class Utils {
 
     private static void normalizeVector(double[] vector) {
         double len = getVectorLength(vector);
-        for (double d : vector) {
-            d = d / len;
+        for(int i = 0; i < vector.length; i++) {
+            vector[i] = vector[i]/len;
         }
     }
 

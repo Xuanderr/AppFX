@@ -35,10 +35,8 @@ public class ResultController {
 
     @FXML
     private Button btnZoom;
-
     @FXML
     private AnchorPane mainAnchorPane;
-
     @FXML
     private Pagination pgnResults;
 

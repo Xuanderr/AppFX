@@ -16,27 +16,30 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InputTypeOneController {
+public class InputTypeThreeController {
 
     private static VBox paneLog;
 
     private final Pattern patternAccuracy = Pattern.compile("\\d+\\.\\d+");
+    private final Pattern patternSeed = Pattern.compile("-?\\d+");
 
-    @FXML
-    private TextArea fieldAlert;
-    @FXML
-    private TextField accuracyMin;
-    @FXML
-    private TextField accuracyMax;
     @FXML
     private CheckBox checkBoxOne;
     @FXML
     private CheckBox checkBoxTwo;
     @FXML
     private CheckBox checkBoxThree;
+    @FXML
+    private TextField seedMin;
+    @FXML
+    private TextField seedMax;
+    @FXML
+    private TextArea fieldAlert;
+    @FXML
+    private TextField fieldAccuracy;
 
     public static void setPaneLog(VBox paneLog) {
-        InputTypeOneController.paneLog = paneLog;
+        InputTypeThreeController.paneLog = paneLog;
     }
 
     private void close(ActionEvent actionEvent) {
@@ -44,13 +47,13 @@ public class InputTypeOneController {
         Stage stage = (Stage) source.getScene().getWindow();
         stage.close();
     }
+
     public void actionClose(ActionEvent actionEvent) {
         Label label = new Label("Отмена ввода данных");
         addRecordToLog(label);
         DataCache.clear();
         close(actionEvent);
     }
-
 
     public void actionSave(ActionEvent actionEvent) {
         if (checkBoxOne.isSelected()) {
@@ -62,16 +65,21 @@ public class InputTypeOneController {
         if (checkBoxThree.isSelected()) {
             DataCache.diapasons.add(3);
         }
-        String minAc = accuracyMin.getText();
-        if (Objects.equals(minAc, "")) {
-            minAc = null;
+        String minSeed = seedMin.getText();
+        if (Objects.equals(minSeed, "")) {
+            minSeed = null;
         }
-        String maxAc = accuracyMax.getText();
-        if (Objects.equals(maxAc, "")) {
-            maxAc = null;
+        String maxSeed = seedMax.getText();
+        if (Objects.equals(maxSeed, "")) {
+            maxSeed = null;
         }
-        if (checkAccuracyInput(minAc, maxAc, patternAccuracy) & checkDiapasonsInput()) {
-            DataCache.experimentType = 1;
+        String accuracy = fieldAccuracy.getText();
+        if (Objects.equals(accuracy, "")) {
+            accuracy = null;
+        }
+        if (checkSeedInput(minSeed, maxSeed, patternSeed) &
+                checkAccuracyInput(accuracy, patternAccuracy) & checkDiapasonsInput()) {
+            DataCache.experimentType = 3;
             DataCache.experts.add(7);
             DataCache.dataInput = true;
             close(actionEvent);
@@ -80,54 +88,70 @@ public class InputTypeOneController {
         }
     }
 
-    private boolean checkAccuracyInput(String min, String max, Pattern pattern) {
+    private boolean checkSeedInput(String min, String max, Pattern pattern) {
         if (min == null & max == null) {
-            accuracyMax.setText("error");
-            accuracyMin.setText("error");
+            seedMax.setText("error");
+            seedMin.setText("error");
             return false;
         }
         if(min == null | max == null) {
             if (min != null) {
                 if (match(min, pattern)) {
-                    DataCache.accuracy.add(Double.valueOf(min));
-                    Label label = new Label("Введена только min точность");
+                    DataCache.seeds.add(Integer.parseInt(min));
+                    Label label = new Label("Введен только min seed");
                     addRecordToLog(label);
                     return true;
                 } else {
-                    accuracyMin.setText("error");
+                    seedMin.setText("error");
                     return false;
                 }
             }
             if (match(max, pattern)) {
-                DataCache.accuracy.add(Double.valueOf(max));
-                Label label = new Label("Введена только max точность");
+                DataCache.seeds.add(Integer.parseInt(max));
+                Label label = new Label("Введен только max seed");
                 addRecordToLog(label);
                 return true;
             } else {
-                accuracyMax.setText("error");
+                seedMax.setText("error");
                 return false;
             }
         }
         boolean minMatch = match(min, pattern);
         boolean maxMatch = match(max, pattern);
         if (minMatch & maxMatch) {
-            if (Double.parseDouble(max) <= Double.parseDouble(min)) {
+            if (Integer.parseInt(max) <= Integer.parseInt(min)) {
                 fieldAlert.setText("max <= min: Проверьте правильность ввода. При исследовании одного значения заполните одно из полей");
                 fieldAlert.setVisible(true);
                 return false;
             }
-            DataCache.accuracy.add(Double.parseDouble(min));
-            DataCache.accuracy.add(Double.parseDouble(max));
-            Label label = new Label("Диапазон точности введен");
+            DataCache.seeds.add(Integer.parseInt(min));
+            DataCache.seeds.add(Integer.parseInt(max));
+            Label label = new Label("Диапазон seed введен");
             addRecordToLog(label);
             return true;
         } else {
             if (!minMatch) {
-                accuracyMin.setText("error");
+                seedMin.setText("error");
             }
             if (!maxMatch) {
-                accuracyMax.setText("error");
+                seedMax.setText("error");
             }
+            return false;
+        }
+    }
+
+    private boolean checkAccuracyInput(String value, Pattern pattern) {
+        if (value == null) {
+            fieldAccuracy.setText("error");
+            return false;
+        }
+        if (match(value, pattern)) {
+            DataCache.accuracy.add(Double.parseDouble(value));
+            Label label = new Label("Значение точности введено");
+            addRecordToLog(label);
+            return true;
+        } else {
+            fieldAccuracy.setText("error");
             return false;
         }
     }
@@ -193,11 +217,6 @@ public class InputTypeOneController {
         }
     }
 
-    private boolean match(String value, Pattern pattern) {
-        Matcher matcher = pattern.matcher(value);
-        return matcher.matches();
-    }
-
     private String genTypeToString(int genType) {
         switch (genType) {
             case 1 -> {
@@ -213,8 +232,34 @@ public class InputTypeOneController {
         return "unknown";
     }
 
+    private boolean match(String value, Pattern pattern) {
+        Matcher matcher = pattern.matcher(value);
+        return matcher.matches();
+    }
+
     private void addRecordToLog(Label label) {
         VBox.setMargin(label, new Insets(0, 5, 2, 5));
         paneLog.getChildren().add(label);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
