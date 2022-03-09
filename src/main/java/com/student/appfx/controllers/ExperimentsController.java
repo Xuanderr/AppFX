@@ -2,7 +2,6 @@ package com.student.appfx.controllers;
 
 import com.student.appfx.cache.DataCache;
 import com.student.appfx.entities.Experiment;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;

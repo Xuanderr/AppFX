@@ -4,6 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 
+
+
 public class Correction {
 
     private final ObservableList<XYChart.Series<Number, Number>> before = FXCollections.observableArrayList();

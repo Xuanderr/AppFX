@@ -68,7 +68,7 @@ public class MainController {
             case "Эксперимент 3" -> typeThreeInputForm(actionEvent);
             case "Эксперимент 4" -> typeFourInputForm(actionEvent);
             default -> {
-                Label label = new Label("ОШИБКА: выбор эксперимента не удался: IN MainController--68");
+                Label label = new Label("ОШИБКА: выбор эксперимента не удался: IN MainController--71");
                 addRecordToLog(label);
             }
         }
@@ -83,7 +83,6 @@ public class MainController {
         Scene scene = null;
         try {
             scene = new Scene(fxmlLoader.load());
-            throw new IOException();
         } catch (IOException e) {
             LOGGER.info("IN MainController.typeOneInputForm()", e);
         }
