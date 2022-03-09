@@ -176,51 +176,6 @@ public class Experiment {
         withoutCorrection(matrix, vector);
         withCorrection(matrix, vector);
     }
-//    public ObservableList<XYChart.Series<Number, Number>> launch() {
-//        if(DataCache.experimentType == 1) {
-//            for (int i = 0; i < expertsAmount; i++) {
-//                XYChart.Series<Number, Number> series = new XYChart.Series<>();
-//                series.setName(String.valueOf(i+1));
-//                seriesList.add(series);
-//            }
-//        }
-//        MatrixOrVector matrix = getExpertMatrix();
-//        MatrixOrVector vector = getExpertDefaultVector();
-//        //System.out.println("Matrix\n" + matrix);
-//        Utils.normalizerMatrixOrVector(matrix.get(), 0);
-//        //System.out.println("Normalize Matrix\n" + matrix);
-//        //System.out.println("Vector default\n" + vector);
-//        try {
-//            int counter = 0;
-//            while (true) {
-//                if (counter > 500) {
-//                    break;
-//                }
-//                MatrixOrVector mul = Utils.multiply(matrix, vector);
-//                Utils.normalizerMatrixOrVector(mul.get(), 0);
-//                double current = Utils.currentAccuracy(vector.get(), mul.get());
-//                if (current <= accuracy) {
-//                    break;
-//                }
-//                if (DataCache.experimentType == 1) {
-//                    for (int i = 0; i < expertsAmount; i++) {
-//                        seriesList.get(i).getData().add(new XYChart.Data<Number, Number>(counter, vector.getElement(i, 0)));
-//                    }
-//                }
-//                //System.out.println("Vector after " + (counter + 1) + " iterations");
-//                //System.out.println(mul);
-//                vector = mul;
-//                counter++;
-//            }
-//            if (DataCache.experimentType == 2) {
-//                //setData(new XYChart.Data<>(expertsAmount, counter));
-//            }
-//            return seriesList;
-//        } catch (MismatchColumnsStringsException e) {
-//            LOGGER.info("IN Experiment.launch() ", e);
-//            return null;
-//        }
-//    }
 
     private void withoutCorrection(MatrixOrVector matrix, MatrixOrVector vector) {
         try {

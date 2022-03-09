@@ -43,6 +43,7 @@ public class InputTypeTwoController {
         Stage stage = (Stage) source.getScene().getWindow();
         stage.close();
     }
+
     public void actionClose(ActionEvent actionEvent) {
         Label label = new Label("Отмена ввода данных");
         addRecordToLog(label);
@@ -187,21 +188,6 @@ public class InputTypeTwoController {
     private boolean match(String value, Pattern pattern) {
         Matcher matcher = pattern.matcher(value);
         return matcher.matches();
-    }
-
-    private String genTypeToString(int genType) {
-        switch (genType) {
-            case 1 -> {
-                return "[0, 10]";
-            }
-            case 2 -> {
-                return "[-1, 10]";
-            }
-            case 3 -> {
-                return "[-10, 10]";
-            }
-        }
-        return "unknown";
     }
 
     private void addRecordToLog(Label label) {

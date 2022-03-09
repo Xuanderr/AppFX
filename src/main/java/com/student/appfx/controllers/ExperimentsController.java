@@ -176,11 +176,13 @@ public class ExperimentsController {
         }
         int scale = BigDecimal.valueOf(acStart).scale();
         acStep = 1.0 / Math.pow(10, scale);
-        seedStart = DataCache.seeds.get(0);
-        if (DataCache.seeds.size() != 1) {
-            seedEnd = DataCache.seeds.get(1);
-        } else {
-            seedEnd = 0;
+        if (!DataCache.seeds.isEmpty()) {
+            seedStart = DataCache.seeds.get(0);
+            if (DataCache.seeds.size() != 1) {
+                seedEnd = DataCache.seeds.get(1);
+            } else {
+                seedEnd = 0;
+            }
         }
     }
 
@@ -199,7 +201,6 @@ public class ExperimentsController {
         final NumberAxis yAxis = createAxis(yLabel);
         final LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
         chart.setAnimated(false);
-        chart.setCreateSymbols(false);
         chart.getData().add(series);
         return chart ;
     }
@@ -235,5 +236,4 @@ public class ExperimentsController {
         yAxis.setUpperBound(yUpper + 1);
         yAxis.setTickUnit(yTics);
     }
-
 }

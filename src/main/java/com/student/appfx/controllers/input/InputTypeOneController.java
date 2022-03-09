@@ -44,13 +44,13 @@ public class InputTypeOneController {
         Stage stage = (Stage) source.getScene().getWindow();
         stage.close();
     }
+
     public void actionClose(ActionEvent actionEvent) {
         Label label = new Label("Отмена ввода данных");
         addRecordToLog(label);
         DataCache.clear();
         close(actionEvent);
     }
-
 
     public void actionSave(ActionEvent actionEvent) {
         if (checkBoxOne.isSelected()) {

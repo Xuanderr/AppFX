@@ -51,7 +51,6 @@ public class InputTypeFourController {
         close(actionEvent);
     }
 
-
     public void actionSave(ActionEvent actionEvent) {
         String minSeed = seedMin.getText();
         if (Objects.equals(minSeed, "")) {
