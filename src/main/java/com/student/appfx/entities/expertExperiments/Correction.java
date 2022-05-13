@@ -1,4 +1,4 @@
-package com.student.appfx.entities;
+package com.student.appfx.entities.expertExperiments;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

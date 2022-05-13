@@ -28,7 +28,7 @@ public class SaveController {
 
     private static VBox paneLog;
 
-    private LineChart<Number, Number> chart;
+    private LineChart<?,?> chart;
     private final Pattern pattern = Pattern.compile("\\w+");
 
     @FXML
@@ -52,7 +52,7 @@ public class SaveController {
         actionClose(actionEvent);
     }
 
-    public void setChart(LineChart<Number, Number> chart) {
+    public void setChart(LineChart<?,?> chart) {
         this.chart = chart;
     }
 

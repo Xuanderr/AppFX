@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.student.appfx.controllers.ResearchController">
+   <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <Menu mnemonicParsing="false" text="zoomTools">
+         <MenuItem fx:id="itemZoom" mnemonicParsing="false" onAction="#actionZoom" text="Zoom" />
+         <MenuItem mnemonicParsing="false" onAction="#actionReset" text="Reset" />
+      </Menu>
+   </MenuBar>
+   <AnchorPane fx:id="chartContainer" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="26.0" />
+   <AnchorPane prefHeight="30.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+      <ToolBar layoutX="55.0" layoutY="15.0" minHeight="-Infinity" prefHeight="30.0" prefWidth="60.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <Label text="Tools" />
+          <ToolBar minHeight="-Infinity">
+              <Button mnemonicParsing="false" onAction="#actionAddH" prefWidth="80.0" text="Add H" />
+              <Button mnemonicParsing="false" onAction="#actionAddL" prefWidth="80.0" text="Add L" />
+              <Button mnemonicParsing="false" onAction="#actionRemoveH" prefWidth="80.0" text="Remove H" />
+              <Button mnemonicParsing="false" onAction="#actionRemoveL" prefWidth="80.0" text="Remove L" />
+          </ToolBar>
+          <ToolBar fx:id="toolsCut" minHeight="-Infinity">
+              <Button mnemonicParsing="false" onAction="#actionCutMax" prefWidth="80.0" text="Cut max" />
+              <Button mnemonicParsing="false" onAction="#actionCutMin" prefWidth="80.0" text="Cut min" />
+              <Button mnemonicParsing="false" onAction="#actionReturnMax" prefWidth="80.0" text="Return max" />
+              <Button mnemonicParsing="false" onAction="#actionReturnMin" prefWidth="80.0" text="Return min" />
+          </ToolBar>
+      </ToolBar>
+      <Button mnemonicParsing="false" onAction="#actionFileSave" prefWidth="75.0" text="Сохранить" AnchorPane.bottomAnchor="2.599999999999998" AnchorPane.leftAnchor="300.0" />
+      <CheckBox fx:id="tooltipBox" mnemonicParsing="false" onAction="#actionTooltip" text="Tooltip" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="226.0" />
+      <HBox fx:id="boxInfo" prefWidth="95.0" style="-fx-border-color: #219da6; -fx-border-radius: 5px;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="505.0" AnchorPane.topAnchor="0.0">
+      </HBox>
+   </AnchorPane>
+</AnchorPane>

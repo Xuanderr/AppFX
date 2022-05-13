@@ -1,6 +1,6 @@
-package com.student.appfx.controllers.input;
+package com.student.appfx.controllers.inputForExpertsExperiments;
 
-import com.student.appfx.cache.DataCache;
+import com.student.appfx.cache.DataForExpertExperiments;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -16,27 +16,30 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InputTypeOneController {
+public class InputTypeThreeController {
 
     private static VBox paneLog;
 
     private final Pattern patternAccuracy = Pattern.compile("\\d+\\.\\d+");
+    private final Pattern patternSeed = Pattern.compile("-?\\d+");
 
-    @FXML
-    private TextArea fieldAlert;
-    @FXML
-    private TextField accuracyMin;
-    @FXML
-    private TextField accuracyMax;
     @FXML
     private CheckBox checkBoxOne;
     @FXML
     private CheckBox checkBoxTwo;
     @FXML
     private CheckBox checkBoxThree;
+    @FXML
+    private TextField seedMin;
+    @FXML
+    private TextField seedMax;
+    @FXML
+    private TextArea fieldAlert;
+    @FXML
+    private TextField fieldAccuracy;
 
     public static void setPaneLog(VBox paneLog) {
-        InputTypeOneController.paneLog = paneLog;
+        InputTypeThreeController.paneLog = paneLog;
     }
 
     private void close(ActionEvent actionEvent) {
@@ -48,104 +51,125 @@ public class InputTypeOneController {
     public void actionClose(ActionEvent actionEvent) {
         Label label = new Label("Отмена ввода данных");
         addRecordToLog(label);
-        DataCache.clear();
+        DataForExpertExperiments.clear();
         close(actionEvent);
     }
 
     public void actionSave(ActionEvent actionEvent) {
         if (checkBoxOne.isSelected()) {
-            DataCache.diapasons.add(1);
+            DataForExpertExperiments.diapasons.add(1);
         }
         if (checkBoxTwo.isSelected()) {
-            DataCache.diapasons.add(2);
+            DataForExpertExperiments.diapasons.add(2);
         }
         if (checkBoxThree.isSelected()) {
-            DataCache.diapasons.add(3);
+            DataForExpertExperiments.diapasons.add(3);
         }
-        String minAc = accuracyMin.getText();
-        if (Objects.equals(minAc, "")) {
-            minAc = null;
+        String minSeed = seedMin.getText();
+        if (Objects.equals(minSeed, "")) {
+            minSeed = null;
         }
-        String maxAc = accuracyMax.getText();
-        if (Objects.equals(maxAc, "")) {
-            maxAc = null;
+        String maxSeed = seedMax.getText();
+        if (Objects.equals(maxSeed, "")) {
+            maxSeed = null;
         }
-        if (checkAccuracyInput(minAc, maxAc, patternAccuracy) & checkDiapasonsInput()) {
-            DataCache.experimentType = 1;
-            DataCache.experts.add(7);
-            DataCache.dataInput = true;
+        String accuracy = fieldAccuracy.getText();
+        if (Objects.equals(accuracy, "")) {
+            accuracy = null;
+        }
+        if (checkSeedInput(minSeed, maxSeed, patternSeed) &
+                checkAccuracyInput(accuracy, patternAccuracy) & checkDiapasonsInput()) {
+            DataForExpertExperiments.experimentType = 3;
+            DataForExpertExperiments.experts.add(7);
+            DataForExpertExperiments.dataInput = true;
             close(actionEvent);
         } else {
-            DataCache.clear();
+            DataForExpertExperiments.clear();
         }
     }
 
-    private boolean checkAccuracyInput(String min, String max, Pattern pattern) {
+    private boolean checkSeedInput(String min, String max, Pattern pattern) {
         if (min == null & max == null) {
-            accuracyMax.setText("error");
-            accuracyMin.setText("error");
+            seedMax.setText("error");
+            seedMin.setText("error");
             return false;
         }
         if(min == null | max == null) {
             if (min != null) {
                 if (match(min, pattern)) {
-                    DataCache.accuracy.add(Double.valueOf(min));
-                    Label label = new Label("Введена только min точность");
+                    DataForExpertExperiments.seeds.add(Integer.parseInt(min));
+                    Label label = new Label("Введен только min seed");
                     addRecordToLog(label);
                     return true;
                 } else {
-                    accuracyMin.setText("error");
+                    seedMin.setText("error");
                     return false;
                 }
             }
             if (match(max, pattern)) {
-                DataCache.accuracy.add(Double.valueOf(max));
-                Label label = new Label("Введена только max точность");
+                DataForExpertExperiments.seeds.add(Integer.parseInt(max));
+                Label label = new Label("Введен только max seed");
                 addRecordToLog(label);
                 return true;
             } else {
-                accuracyMax.setText("error");
+                seedMax.setText("error");
                 return false;
             }
         }
         boolean minMatch = match(min, pattern);
         boolean maxMatch = match(max, pattern);
         if (minMatch & maxMatch) {
-            if (Double.parseDouble(max) <= Double.parseDouble(min)) {
+            if (Integer.parseInt(max) <= Integer.parseInt(min)) {
                 fieldAlert.setText("max <= min: Проверьте правильность ввода. При исследовании одного значения заполните одно из полей");
                 fieldAlert.setVisible(true);
                 return false;
             }
-            DataCache.accuracy.add(Double.parseDouble(min));
-            DataCache.accuracy.add(Double.parseDouble(max));
-            Label label = new Label("Диапазон точности введен");
+            DataForExpertExperiments.seeds.add(Integer.parseInt(min));
+            DataForExpertExperiments.seeds.add(Integer.parseInt(max));
+            Label label = new Label("Диапазон seed введен");
             addRecordToLog(label);
             return true;
         } else {
             if (!minMatch) {
-                accuracyMin.setText("error");
+                seedMin.setText("error");
             }
             if (!maxMatch) {
-                accuracyMax.setText("error");
+                seedMax.setText("error");
             }
             return false;
         }
     }
 
+    private boolean checkAccuracyInput(String value, Pattern pattern) {
+        if (value == null) {
+            fieldAccuracy.setText("error");
+            return false;
+        }
+        if (match(value, pattern)) {
+            DataForExpertExperiments.accuracy.add(Double.parseDouble(value));
+            Label label = new Label("Значение точности введено");
+            addRecordToLog(label);
+            return true;
+        } else {
+            fieldAccuracy.setText("error");
+            return false;
+        }
+    }
+
     private boolean checkDiapasonsInput() {
-        if (DataCache.diapasons.isEmpty()) {
+        if (DataForExpertExperiments.diapasons.isEmpty()) {
             fieldAlert.setText("Диапазоны генерации не заданы");
             fieldAlert.setVisible(true);
             return false;
         }
         Label label = new Label();
         String d1, d2, d3;
-        switch (DataCache.diapasons.size()) {
+        switch (DataForExpertExperiments.diapasons.size()) {
             case 1 -> {
-                d1 = genTypeToString(DataCache.diapasons.get(0));
+                d1 = genTypeToString(DataForExpertExperiments.diapasons.get(0));
                 if (d1.equals("unknown")) {
-                    DataCache.diapasons.clear();
-                    DataCache.diapasons.add(3);
+                    DataForExpertExperiments.diapasons.clear();
+                    DataForExpertExperiments.diapasons.add(3);
                     label.setText("Предоставлен диапазон по умолчанию [-10, 10]. IN InputTypeThreeController--165");
                     addRecordToLog(label);
                     return true;
@@ -155,11 +179,11 @@ public class InputTypeOneController {
                 return true;
             }
             case 2 -> {
-                d1 = genTypeToString(DataCache.diapasons.get(0));
-                d2 = genTypeToString(DataCache.diapasons.get(1));
+                d1 = genTypeToString(DataForExpertExperiments.diapasons.get(0));
+                d2 = genTypeToString(DataForExpertExperiments.diapasons.get(1));
                 if (d1.equals("unknown") | d2.equals("unknown")) {
-                    DataCache.diapasons.clear();
-                    DataCache.diapasons.add(3);
+                    DataForExpertExperiments.diapasons.clear();
+                    DataForExpertExperiments.diapasons.add(3);
                     label.setText("Предоставлен диапазон по умолчанию [-10, 10]. IN InputTypeThreeController--179");
                     addRecordToLog(label);
                     return true;
@@ -169,12 +193,12 @@ public class InputTypeOneController {
                 return true;
             }
             case 3 -> {
-                d1 = genTypeToString(DataCache.diapasons.get(0));
-                d2 = genTypeToString(DataCache.diapasons.get(1));
-                d3 = genTypeToString(DataCache.diapasons.get(2));
+                d1 = genTypeToString(DataForExpertExperiments.diapasons.get(0));
+                d2 = genTypeToString(DataForExpertExperiments.diapasons.get(1));
+                d3 = genTypeToString(DataForExpertExperiments.diapasons.get(2));
                 if (d1.equals("unknown") | d2.equals("unknown") | d3.equals("unknown")) {
-                    DataCache.diapasons.clear();
-                    DataCache.diapasons.add(3);
+                    DataForExpertExperiments.diapasons.clear();
+                    DataForExpertExperiments.diapasons.add(3);
                     label.setText("Предоставлен диапазон по умолчанию [-10, 10]. IN InputTypeThreeController--193");
                     addRecordToLog(label);
                     return true;
@@ -184,18 +208,13 @@ public class InputTypeOneController {
                 return true;
             }
             default -> {
-                DataCache.diapasons.clear();
-                DataCache.diapasons.add(3);
+                DataForExpertExperiments.diapasons.clear();
+                DataForExpertExperiments.diapasons.add(3);
                 label.setText("Предоставлен диапазон по умолчанию [-10, 10]. IN InputTypeThreeController--203");
                 addRecordToLog(label);
                 return true;
             }
         }
-    }
-
-    private boolean match(String value, Pattern pattern) {
-        Matcher matcher = pattern.matcher(value);
-        return matcher.matches();
     }
 
     private String genTypeToString(int genType) {
@@ -213,8 +232,34 @@ public class InputTypeOneController {
         return "unknown";
     }
 
+    private boolean match(String value, Pattern pattern) {
+        Matcher matcher = pattern.matcher(value);
+        return matcher.matches();
+    }
+
     private void addRecordToLog(Label label) {
         VBox.setMargin(label, new Insets(0, 5, 2, 5));
         paneLog.getChildren().add(label);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

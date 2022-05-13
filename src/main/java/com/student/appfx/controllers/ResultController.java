@@ -1,6 +1,9 @@
 package com.student.appfx.controllers;
 
-import com.student.appfx.cache.DataCache;
+import com.student.appfx.cache.DataForInformationExperiments;
+import com.student.appfx.cache.MainCache;
+import com.student.appfx.controllers.manageControllers.ExpertsMainController;
+import com.student.appfx.entities.informationExperiments.ChartWrapper;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -13,9 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.Pagination;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -28,13 +29,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-
 public class ResultController {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ResultController.class.getName());
 
     @FXML
-    private Button btnZoom;
+    private MenuItem itemResearch;
+    @FXML
+    private MenuItem itemZoom;
+    @FXML
+    private CheckBox tooltipBox;
     @FXML
     private AnchorPane mainAnchorPane;
     @FXML
@@ -43,21 +47,36 @@ public class ResultController {
     private Stage saveStage;
     private final Rectangle zoomRect = createZoomRect();
     private LineChart<Number, Number> currentChart;
+    private boolean tooltipFlag = false;
+    private Stage researchStage;
+
 
     @FXML
     private void initialize() {
-        pgnResults.setPageCount(DataCache.graphics.size());
+        pgnResults.setPageCount(MainCache.graphics.size());
         pgnResults.setMaxPageIndicatorCount(10);
         pgnResults.setPageFactory(this::createPage);
         final BooleanBinding disableControls =
                 zoomRect.widthProperty().lessThan(5)
                         .or(zoomRect.heightProperty().lessThan(5));
-        btnZoom.disableProperty().bind(disableControls);
+        itemResearch.setDisable(true);
+//        switch (MainCache.partToShow) {
+//            case 1:
+//                itemResearch.setDisable(true);
+//                break;
+//            case 2: break;
+//            case 3: break;
+//        }
+        itemZoom.disableProperty().bind(disableControls);
     }
 
     private Node createPage(Integer pageIndex) {
-        currentChart = DataCache.graphics.get(pageIndex);
-        setTooltip(currentChart);
+        if (tooltipFlag) {
+            removeTooltip(currentChart);
+            setTooltipFlag(false);
+            tooltipBox.setSelected(false);
+        }
+        currentChart = MainCache.graphics.get(pageIndex);
         StackPane chartContainer = new StackPane();
         chartContainer.getChildren().add(currentChart);
         chartContainer.getChildren().add(zoomRect);
@@ -72,16 +91,17 @@ public class ResultController {
         return chartContainer;
     }
 
-    private void setTooltip(LineChart<Number,Number> lineChart) {
-        for (XYChart.Series<Number, Number> series: lineChart.getData()) {
-            for (XYChart.Data<Number, Number> data: series.getData()) {
-                Tooltip.install(data.getNode(), new Tooltip("(" + data.getXValue() + ", " + data.getYValue() + ")"));
-            }
+    public void actionTooltip(ActionEvent actionEvent) {
+        if (tooltipBox.isSelected()) {
+            setTooltip(currentChart);
+            setTooltipFlag(true);
+        } else {
+            removeTooltip(currentChart);
+            setTooltipFlag(false);
         }
     }
 
     public void actionFileSave(ActionEvent actionEvent) {
-
         if (saveStage == null) {
             saveStage = new Stage();
             saveStage.setTitle("save");
@@ -90,7 +110,7 @@ public class ResultController {
             saveStage.initModality(Modality.WINDOW_MODAL);
             saveStage.initOwner(((Node) actionEvent.getSource()).getScene().getWindow());
         }
-        FXMLLoader fxmlLoader = new FXMLLoader(MainController.class.getResource("/com/student/appfx/save.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ExpertsMainController.class.getResource("/com/student/appfx/save.fxml"));
         Scene scene = null;
         try {
             scene = new Scene(fxmlLoader.load());
@@ -115,6 +135,43 @@ public class ResultController {
 
         zoomRect.setWidth(0);
         zoomRect.setHeight(0);
+    }
+
+    public void actionResearch(ActionEvent actionEvent) {
+        if (researchStage == null) {
+            researchStage = new Stage();
+            researchStage.setTitle("research");
+            researchStage.centerOnScreen();
+        }
+        MainCache.chartForResearch = DataForInformationExperiments.copyChart(currentChart);
+        FXMLLoader fxmlLoader = new FXMLLoader(ResultController.class.getResource("/com/student/appfx/research.fxml"));
+        Scene scene = null;
+        try {
+            scene = new Scene(fxmlLoader.load());
+        } catch (IOException e) {
+            LOGGER.info("IN ResultController.actionResearch()", e);
+        }
+        researchStage.setOnCloseRequest(windowEvent -> {
+            MainCache.chartForResearch = null;
+        });
+        researchStage.setScene(scene);
+        researchStage.show();
+    }
+
+    private void setTooltip(LineChart<Number, Number> lineChart) {
+        for (XYChart.Series<?,?> series: lineChart.getData()) {
+            for (XYChart.Data<?,?> data: series.getData()) {
+                Tooltip.install(data.getNode(), new Tooltip("(" + data.getXValue() + ", " + data.getYValue() + ")"));
+            }
+        }
+    }
+
+    private void removeTooltip(LineChart<Number, Number> lineChart) {
+        for (XYChart.Series<?,?> series: lineChart.getData()) {
+            for (XYChart.Data<?,?> data: series.getData()) {
+                data.getNode().getProperties().clear();
+            }
+        }
     }
 
     private Rectangle createZoomRect() {
@@ -160,6 +217,10 @@ public class ResultController {
             rect.setWidth(Math.abs(x - mouseAnchor.get().getX()));
             rect.setHeight(Math.abs(y - mouseAnchor.get().getY()));
         });
+    }
+
+    private void setTooltipFlag(boolean tooltipFlag) {
+        this.tooltipFlag = tooltipFlag;
     }
 
 }

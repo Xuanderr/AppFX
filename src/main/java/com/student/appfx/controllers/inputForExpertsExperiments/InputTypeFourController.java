@@ -1,6 +1,6 @@
-package com.student.appfx.controllers.input;
+package com.student.appfx.controllers.inputForExpertsExperiments;
 
-import com.student.appfx.cache.DataCache;
+import com.student.appfx.cache.DataForExpertExperiments;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -47,7 +47,7 @@ public class InputTypeFourController {
     public void actionClose(ActionEvent actionEvent) {
         Label label = new Label("Отмена ввода данных");
         addRecordToLog(label);
-        DataCache.clear();
+        DataForExpertExperiments.clear();
         close(actionEvent);
     }
 
@@ -70,13 +70,13 @@ public class InputTypeFourController {
         }
         if (checkSeedInput(minSeed, maxSeed, patternSeed) &
                 checkAccuracyInput(accuracy, patternAccuracy) & checkMultiplierInput(multiplier, patternMultiplier)) {
-            DataCache.experimentType = 4;
-            DataCache.experts.add(7);
-            DataCache.diapasons.add(3);
-            DataCache.dataInput = true;
+            DataForExpertExperiments.experimentType = 4;
+            DataForExpertExperiments.experts.add(7);
+            DataForExpertExperiments.diapasons.add(3);
+            DataForExpertExperiments.dataInput = true;
             close(actionEvent);
         } else {
-            DataCache.clear();
+            DataForExpertExperiments.clear();
         }
     }
 
@@ -89,7 +89,7 @@ public class InputTypeFourController {
         if(min == null | max == null) {
             if (min != null) {
                 if (match(min, pattern)) {
-                    DataCache.seeds.add(Integer.parseInt(min));
+                    DataForExpertExperiments.seeds.add(Integer.parseInt(min));
                     Label label = new Label("Введен только min seed");
                     addRecordToLog(label);
                     return true;
@@ -99,7 +99,7 @@ public class InputTypeFourController {
                 }
             }
             if (match(max, pattern)) {
-                DataCache.seeds.add(Integer.parseInt(max));
+                DataForExpertExperiments.seeds.add(Integer.parseInt(max));
                 Label label = new Label("Введен только max seed");
                 addRecordToLog(label);
                 return true;
@@ -116,8 +116,8 @@ public class InputTypeFourController {
                 fieldAlert.setVisible(true);
                 return false;
             }
-            DataCache.seeds.add(Integer.parseInt(min));
-            DataCache.seeds.add(Integer.parseInt(max));
+            DataForExpertExperiments.seeds.add(Integer.parseInt(min));
+            DataForExpertExperiments.seeds.add(Integer.parseInt(max));
             Label label = new Label("Диапазон seed введен");
             addRecordToLog(label);
             return true;
@@ -138,7 +138,7 @@ public class InputTypeFourController {
             return false;
         }
         if (match(value, pattern)) {
-            DataCache.accuracy.add(Double.parseDouble(value));
+            DataForExpertExperiments.accuracy.add(Double.parseDouble(value));
             Label label = new Label("Значение точности введено");
             addRecordToLog(label);
             return true;
@@ -154,7 +154,7 @@ public class InputTypeFourController {
             return false;
         }
         if (match(value, pattern)) {
-            DataCache.correctionMultiplier = Double.parseDouble(value);
+            DataForExpertExperiments.correctionMultiplier = Double.parseDouble(value);
             Label label = new Label("Значение множителя коррекции введено");
             addRecordToLog(label);
             return true;

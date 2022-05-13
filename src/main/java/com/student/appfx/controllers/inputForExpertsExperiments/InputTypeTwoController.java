@@ -1,6 +1,6 @@
-package com.student.appfx.controllers.input;
+package com.student.appfx.controllers.inputForExpertsExperiments;
 
-import com.student.appfx.cache.DataCache;
+import com.student.appfx.cache.DataForExpertExperiments;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -47,7 +47,7 @@ public class InputTypeTwoController {
     public void actionClose(ActionEvent actionEvent) {
         Label label = new Label("Отмена ввода данных");
         addRecordToLog(label);
-        DataCache.clear();
+        DataForExpertExperiments.clear();
         close(actionEvent);
     }
 
@@ -70,14 +70,14 @@ public class InputTypeTwoController {
         }
         if (checkAccuracyInput(minAc, maxAC, patternAccuracy) &
                 checkExpertInput(minEx, maxEx, patternExpert)) {
-            DataCache.diapasons.add(1);
-            DataCache.diapasons.add(2);
-            DataCache.diapasons.add(3);
-            DataCache.experimentType = 2;
-            DataCache.dataInput = true;
+            DataForExpertExperiments.diapasons.add(1);
+            DataForExpertExperiments.diapasons.add(2);
+            DataForExpertExperiments.diapasons.add(3);
+            DataForExpertExperiments.experimentType = 2;
+            DataForExpertExperiments.dataInput = true;
             close(actionEvent);
         } else {
-            DataCache.clear();
+            DataForExpertExperiments.clear();
         }
     }
 
@@ -90,7 +90,7 @@ public class InputTypeTwoController {
         if(min == null | max == null) {
             if (min != null) {
                 if (match(min, pattern)) {
-                    DataCache.accuracy.add(Double.valueOf(min));
+                    DataForExpertExperiments.accuracy.add(Double.valueOf(min));
                     Label label = new Label("Введена только min точность");
                     addRecordToLog(label);
                     return true;
@@ -100,7 +100,7 @@ public class InputTypeTwoController {
                 }
             }
             if (match(max, pattern)) {
-                DataCache.accuracy.add(Double.valueOf(max));
+                DataForExpertExperiments.accuracy.add(Double.valueOf(max));
                 Label label = new Label("Введена только max точность");
                 addRecordToLog(label);
                 return true;
@@ -117,8 +117,8 @@ public class InputTypeTwoController {
                 fieldAlert.setVisible(true);
                 return false;
             }
-            DataCache.accuracy.add(Double.parseDouble(min));
-            DataCache.accuracy.add(Double.parseDouble(max));
+            DataForExpertExperiments.accuracy.add(Double.parseDouble(min));
+            DataForExpertExperiments.accuracy.add(Double.parseDouble(max));
             Label label = new Label("Диапазон точности введен");
             addRecordToLog(label);
             return true;
@@ -142,7 +142,7 @@ public class InputTypeTwoController {
         if(min == null | max == null) {
             if (min != null ) {
                 if (match(min, pattern)) {
-                    DataCache.experts.add(Integer.parseInt(min));
+                    DataForExpertExperiments.experts.add(Integer.parseInt(min));
                     Label label = new Label("Введено только min количество экспертов");
                     addRecordToLog(label);
                     return true;
@@ -152,7 +152,7 @@ public class InputTypeTwoController {
                 }
             }
             if (match(max, pattern)) {
-                DataCache.experts.add(Integer.parseInt(max));
+                DataForExpertExperiments.experts.add(Integer.parseInt(max));
                 Label label = new Label("Введено только max количество экспертов");
                 addRecordToLog(label);
                 return true;
@@ -169,8 +169,13 @@ public class InputTypeTwoController {
                 fieldAlert.setVisible(true);
                 return false;
             }
-            DataCache.experts.add(Integer.parseInt(min));
-            DataCache.experts.add(Integer.parseInt(max));
+            if (Integer.parseInt(min) == 0) {
+                fieldAlert.setText("Нулевые значения недопустимы");
+                fieldAlert.setVisible(true);
+                return false;
+            }
+            DataForExpertExperiments.experts.add(Integer.parseInt(min));
+            DataForExpertExperiments.experts.add(Integer.parseInt(max));
             Label label = new Label("Диапазон количества экспетов введен");
             addRecordToLog(label);
             return true;

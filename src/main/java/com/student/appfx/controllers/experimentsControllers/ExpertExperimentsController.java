@@ -1,7 +1,8 @@
-package com.student.appfx.controllers;
+package com.student.appfx.controllers.experimentsControllers;
 
-import com.student.appfx.cache.DataCache;
-import com.student.appfx.entities.Experiment;
+import com.student.appfx.cache.DataForExpertExperiments;
+import com.student.appfx.cache.MainCache;
+import com.student.appfx.entities.expertExperiments.Experiment;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -9,7 +10,7 @@ import javafx.scene.chart.XYChart;
 
 import java.math.BigDecimal;
 
-public class ExperimentsController {
+public class ExpertExperimentsController {
 
     private Integer expStart;
     private Integer expEnd;
@@ -23,8 +24,8 @@ public class ExperimentsController {
 
     public boolean doExperiment() {
         init();
-        DataCache.graphics.clear();
-        switch (DataCache.experimentType) {
+        MainCache.graphics.clear();
+        switch (DataForExpertExperiments.experimentType) {
             case 1 -> {
                 launchTypeOne();
                 return true;
@@ -52,22 +53,28 @@ public class ExperimentsController {
         int expSize = ((expEnd == 0) ? expStart : expEnd);
         double xTics = 0.1;
         double yTics = 0.1;
-        for (int d = 0; d < DataCache.diapasons.size(); d++) {
+        for (int d = 0; d < DataForExpertExperiments.diapasons.size(); d++) {
+            XYChart.Series<Number, Number> series= new XYChart.Series<>();
+            series.setName(genTypeToString(DataForExpertExperiments.diapasons.get(d)));
             for(double a = acStart; a <= acSize; a += acStep) {
                 for (int e = expStart; e <= expSize; e += 1) {
-                    Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d), null);
+                    Experiment experiment = new Experiment(e, a, DataForExpertExperiments.diapasons.get(d), null);
                     experiment.launch();
                     ObservableList<XYChart.Series<Number, Number>> seriesList = experiment.getSeriesList();
+                    series.getData().add(new XYChart.Data<>(a, getMaxIterationsValue(seriesList.get(0))));
                     LineChart<Number,Number> lineChart = createChart(seriesList, "iteration", "expert value");
-                    if(DataCache.diapasons.get(d) == 3) {
+                    if(DataForExpertExperiments.diapasons.get(d) == 3) {
                         xTics = 50;
                     }
                     setAxisTicsAndLowerUpperBounds(seriesList, lineChart, xTics, yTics);
                     lineChart.setTitle(String.format(
-                            "diapason: %s, accuracy: %f, experts: %d", genTypeToString(DataCache.diapasons.get(d)), a, e));
-                    DataCache.graphics.add(lineChart);
+                            "diapason: %s, accuracy: %f, experts: %d", genTypeToString(DataForExpertExperiments.diapasons.get(d)), a, e));
+                    MainCache.graphics.add(lineChart);
                 }
             }
+            LineChart<Number,Number> lineChart = new LineChart<>(createAxis("accuracy"), createAxis("iterations"));
+            lineChart.getData().add(series);
+            MainCache.graphics.add(lineChart);
         }
     }
 
@@ -75,18 +82,18 @@ public class ExperimentsController {
         double acSize = ((acEnd == 0) ? acStart : acEnd);
         int expSize = ((expEnd == 0) ? expStart : expEnd);
         for(double a = acStart; a <= acSize; a += acStep) {
-            for (int d = 0; d < DataCache.diapasons.size(); d++) {
+            for (int d = 0; d < DataForExpertExperiments.diapasons.size(); d++) {
                 XYChart.Series<Number,Number> series = new XYChart.Series<>();
-                series.setName(genTypeToString(DataCache.diapasons.get(d)));
+                series.setName(genTypeToString(DataForExpertExperiments.diapasons.get(d)));
                 for (int e = expStart; e <= expSize; e += 1) {
-                    Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d), null);
+                    Experiment experiment = new Experiment(e, a, DataForExpertExperiments.diapasons.get(d), null);
                     experiment.launch();
                     XYChart.Data<Number,Number> data = experiment.getData();
                     series.getData().add(data);
                 }
                 LineChart<Number,Number> chart = createAdditionalChart(series, "number of experts", "convergence");
                 chart.setTitle(String.format("accuracy: %f", a));
-                DataCache.graphics.add(chart);
+                MainCache.graphics.add(chart);
             }
         }
     }
@@ -97,22 +104,22 @@ public class ExperimentsController {
         int seedSize = ((seedEnd == 0) ? seedStart : seedEnd);
         double xTics = 0.1;
         double yTics = 0.1;
-        for (int d = 0; d < DataCache.diapasons.size(); d++) {
+        for (int d = 0; d < DataForExpertExperiments.diapasons.size(); d++) {
             for(double a = acStart; a <= acSize; a += acStep) {
                 for (int e = expStart; e <= expSize; e += 1) {
                     for (int s = seedStart; s <= seedSize; s += 1) {
-                        Experiment experiment = new Experiment(e, a, DataCache.diapasons.get(d), s);
+                        Experiment experiment = new Experiment(e, a, DataForExpertExperiments.diapasons.get(d), s);
                         experiment.launch();
                         ObservableList<XYChart.Series<Number, Number>> seriesList = experiment.getSeriesList();
                         LineChart<Number,Number> lineChart = createChart(seriesList, "iteration", "expert value");
-                        if(DataCache.diapasons.get(d) == 3) {
+                        if(DataForExpertExperiments.diapasons.get(d) == 3) {
                             xTics = 50;
                         }
                         setAxisTicsAndLowerUpperBounds(seriesList, lineChart, xTics, yTics);
                         lineChart.setTitle(String.format(
                                 "diapason: %s, accuracy: %f, experts: %d, seed: %d",
-                                genTypeToString(DataCache.diapasons.get(d)), a, e, s));
-                        DataCache.graphics.add(lineChart);
+                                genTypeToString(DataForExpertExperiments.diapasons.get(d)), a, e, s));
+                        MainCache.graphics.add(lineChart);
                     }
                 }
             }
@@ -138,9 +145,9 @@ public class ExperimentsController {
                             "diapason: [-10, 10], accuracy: %f, experts: %d, seed: %d, correction: false", a, e, s));
                     afterChart.setTitle(String.format(
                             "diapason: [-10, 10], accuracy: %f, experts: %d, seed: %d, correction: multiplier = %f",
-                            a, e, s, DataCache.correctionMultiplier));
-                    DataCache.graphics.add(beforeChart);
-                    DataCache.graphics.add(afterChart);
+                            a, e, s, DataForExpertExperiments.correctionMultiplier));
+                    MainCache.graphics.add(beforeChart);
+                    MainCache.graphics.add(afterChart);
                 }
             }
         }
@@ -162,24 +169,24 @@ public class ExperimentsController {
     }
 
     private void init() {
-        expStart = DataCache.experts.get(0);
-        if(DataCache.experts.size() != 1) {
-            expEnd = DataCache.experts.get(1);
+        expStart = DataForExpertExperiments.experts.get(0);
+        if(DataForExpertExperiments.experts.size() != 1) {
+            expEnd = DataForExpertExperiments.experts.get(1);
         } else {
             expEnd = 0;
         }
-        acStart = DataCache.accuracy.get(0);
-        if(DataCache.accuracy.size() != 1) {
-            acEnd = DataCache.accuracy.get(1);
+        acStart = DataForExpertExperiments.accuracy.get(0);
+        if(DataForExpertExperiments.accuracy.size() != 1) {
+            acEnd = DataForExpertExperiments.accuracy.get(1);
         } else {
             acEnd = 0.0;;
         }
         int scale = BigDecimal.valueOf(acStart).scale();
         acStep = 1.0 / Math.pow(10, scale);
-        if (!DataCache.seeds.isEmpty()) {
-            seedStart = DataCache.seeds.get(0);
-            if (DataCache.seeds.size() != 1) {
-                seedEnd = DataCache.seeds.get(1);
+        if (!DataForExpertExperiments.seeds.isEmpty()) {
+            seedStart = DataForExpertExperiments.seeds.get(0);
+            if (DataForExpertExperiments.seeds.size() != 1) {
+                seedEnd = DataForExpertExperiments.seeds.get(1);
             } else {
                 seedEnd = 0;
             }
@@ -236,4 +243,15 @@ public class ExperimentsController {
         yAxis.setUpperBound(yUpper + 1);
         yAxis.setTickUnit(yTics);
     }
+
+    private int getMaxIterationsValue(XYChart.Series<Number, Number> series) {
+        int tmp = 0;
+        for (XYChart.Data<Number,Number> data: series.getData()) {
+            if (tmp < data.getXValue().intValue()) {
+                tmp = data.getXValue().intValue();
+            }
+        }
+        return tmp;
+    }
+
 }

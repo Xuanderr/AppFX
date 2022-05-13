@@ -1,7 +1,10 @@
-package com.student.appfx.entities;
+package com.student.appfx.entities.expertExperiments;
 
 import com.student.appfx.Utils;
-import com.student.appfx.cache.DataCache;
+import com.student.appfx.cache.DataForExpertExperiments;
+import com.student.appfx.cache.DataForFeedbackExperiments;
+import com.student.appfx.cache.MainCache;
+import com.student.appfx.entities.MatrixOrVector;
 import com.student.appfx.exceptions.MismatchColumnsStringsException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,6 +12,8 @@ import javafx.scene.chart.XYChart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class Experiment {
@@ -27,7 +32,7 @@ public class Experiment {
     public Experiment(int expertsAmount, double accuracy, int genType, Integer seed) {
         this.expertsAmount = expertsAmount;
         this.accuracy = accuracy;
-        this.seed = seed;
+        this.seed = Objects.requireNonNullElse(seed, 10);
         switch (genType) {
             case 1 -> {
                 min = 0;
@@ -52,7 +57,11 @@ public class Experiment {
         MatrixOrVector matrix = new MatrixOrVector(expertsAmount, expertsAmount);
         for (int i = 0; i < expertsAmount; i++) {
             for (int j = 0; j < expertsAmount; j++) {
-                matrix.setElement(i, j, random.nextInt(max + 1 - min) + min);
+                if( i == j & DataForExpertExperiments.zeroOnDiagonal) {
+                    matrix.setElement(i, j, 0);
+                } else {
+                    matrix.setElement(i, j, random.nextInt(max + 1 - min) + min);
+                }
             }
         }
         return matrix;
@@ -69,7 +78,7 @@ public class Experiment {
     }
 
     public void launch() {
-        switch (DataCache.experimentType) {
+        switch (DataForExpertExperiments.experimentType) {
             case 1 -> launchTypeOne();
             case 2 -> launchTypeTwo();
             case 3 -> launchTypeThree();
@@ -85,7 +94,8 @@ public class Experiment {
         }
         MatrixOrVector matrix = getExpertMatrix();
         MatrixOrVector vector = getExpertDefaultVector();
-        Utils.normalizerMatrixOrVector(matrix.get(), 0);
+        norm(matrix, 0);
+        //Utils.normalizerMatrixOrVector(matrix.get(), 0);
         try {
             int counter = 0;
             while (true) {
@@ -93,7 +103,7 @@ public class Experiment {
                     break;
                 }
                 MatrixOrVector mul = Utils.multiply(matrix, vector);
-                Utils.normalizerMatrixOrVector(mul.get(), 0);
+                norm(mul, 0);
                 double current = Utils.currentAccuracy(vector.get(), mul.get());
                 if (current <= accuracy) {
                     break;
@@ -112,7 +122,8 @@ public class Experiment {
     private void launchTypeTwo() {
         MatrixOrVector matrix = getExpertMatrix();
         MatrixOrVector vector = getExpertDefaultVector();
-        Utils.normalizerMatrixOrVector(matrix.get(), 0);
+        norm(matrix, 0);
+        //Utils.normalizerMatrixOrVector(matrix.get(), 0);
         try {
             int counter = 0;
             while (true) {
@@ -120,7 +131,7 @@ public class Experiment {
                     break;
                 }
                 MatrixOrVector mul = Utils.multiply(matrix, vector);
-                Utils.normalizerMatrixOrVector(mul.get(), 0);
+                norm(mul, 0);
                 double current = Utils.currentAccuracy(vector.get(), mul.get());
                 if (current <= accuracy) {
                     break;
@@ -128,8 +139,32 @@ public class Experiment {
                 vector = mul;
                 counter++;
             }
+            if (counter < 500) {
+                MainCache.expertsRatings = vector;
+            }
             data.setXValue(expertsAmount);
             data.setYValue(counter);
+        } catch (MismatchColumnsStringsException e) {
+            LOGGER.info("IN Experiment.launchTypeTwo() ", e);
+        }
+    }
+
+    public void addingLaunchTypeTwo() {
+        try {
+            int counter = 0;
+            while (true) {
+                if (counter > 500) {
+                    break;
+                }
+                MatrixOrVector mul = Utils.multiply(DataForFeedbackExperiments.matrix, DataForFeedbackExperiments.vector);
+                norm(mul, 0);
+                double current = Utils.currentAccuracy(DataForFeedbackExperiments.vector.get(), mul.get());
+                if (current <= accuracy) {
+                    break;
+                }
+                DataForFeedbackExperiments.vector = mul;
+                counter++;
+            }
         } catch (MismatchColumnsStringsException e) {
             LOGGER.info("IN Experiment.launchTypeTwo() ", e);
         }
@@ -143,7 +178,8 @@ public class Experiment {
         }
         MatrixOrVector matrix = getExpertMatrix();
         MatrixOrVector vector = getExpertDefaultVector();
-        Utils.normalizerMatrixOrVector(matrix.get(), 0);
+        norm(matrix, 0);
+        //Utils.normalizerMatrixOrVector(matrix.get(), 0);
         try {
             int counter = 0;
             while (true) {
@@ -151,7 +187,7 @@ public class Experiment {
                     break;
                 }
                 MatrixOrVector mul = Utils.multiply(matrix, vector);
-                Utils.normalizerMatrixOrVector(mul.get(), 0);
+                norm(mul, 0);
                 double current = Utils.currentAccuracy(vector.get(), mul.get());
                 if (current <= accuracy) {
                     break;
@@ -172,7 +208,8 @@ public class Experiment {
         correctionData.init(expertsAmount);
         MatrixOrVector matrix = getExpertMatrix();
         MatrixOrVector vector = getExpertDefaultVector();
-        Utils.normalizerMatrixOrVector(matrix.get(), 0);
+        norm(matrix, 0);
+        //Utils.normalizerMatrixOrVector(matrix.get(), 0);
         withoutCorrection(matrix, vector);
         withCorrection(matrix, vector);
     }
@@ -185,7 +222,7 @@ public class Experiment {
                     break;
                 }
                 MatrixOrVector mul = Utils.multiply(matrix, vector);
-                Utils.normalizerMatrixOrVector(mul.get(), 0);
+                norm(mul, 0);
                 double current = Utils.currentAccuracy(vector.get(), mul.get());
                 if (current <= accuracy) {
                     break;
@@ -205,26 +242,41 @@ public class Experiment {
     private void withCorrection(MatrixOrVector matrix, MatrixOrVector vector) {
         try {
             int counter = 0;
-            Utils.correction(matrix, DataCache.correctionMultiplier);
+            for (int i = 0; i < expertsAmount; i++) {
+                correctionData.afterAdd(i, new XYChart.Data<>(counter, 1));
+            }
             while (true) {
+                counter++;
                 if (counter > 500) {
                     break;
                 }
                 MatrixOrVector mul = Utils.multiply(matrix, vector);
-                Utils.normalizerMatrixOrVector(mul.get(), 0);
+                norm(mul, 0);
+                List<CorrectionElement> corrList = Utils.correction(mul, DataForExpertExperiments.correctionMultiplier);
                 double current = Utils.currentAccuracy(vector.get(), mul.get());
                 if (current <= accuracy) {
                     break;
                 }
-
+                if (!corrList.isEmpty()) {
+                    for (CorrectionElement element: corrList) {
+                        correctionData.afterAdd(element.getSeries(), new XYChart.Data<>(counter, element.getValue()));
+                    }
+                }
                 for (int i = 0; i < expertsAmount; i++) {
-                    correctionData.afterAdd(i, new XYChart.Data<>(counter, vector.getElement(i, 0)));
+                    correctionData.afterAdd(i, new XYChart.Data<>(counter, mul.getElement(i, 0)));
                 }
                 vector = mul;
-                counter++;
             }
         } catch (MismatchColumnsStringsException e) {
             LOGGER.info("IN Experiment.launchTypeFour().withCorrection() ", e);
+        }
+    }
+
+    private void norm(MatrixOrVector matrixOrVector, int axis) {
+        if(DataForExpertExperiments.normType == 0) {
+            Utils.normalizerMatrixOrVector(matrixOrVector.get(), axis);
+        } else {
+            Utils.singleSumReduction(matrixOrVector.get(), axis);
         }
     }
 
